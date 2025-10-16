@@ -11,6 +11,8 @@
 </head>
 
 <body>
+    <a class="skip-link" href="#main-content">Pular para o conteúdo</a>
+
     <!-- header.html (fragmento) -->
     <header class="site-header" role="banner">
         <div class="container">
@@ -22,6 +24,12 @@
                 </div>
             </div>
 
+            
+            <div class="accessibility-controls" aria-hidden="false">
+                <button id="dark-mode-toggle" class="btn-accessibility" aria-pressed="false" aria-label="Ativar modo escuro">Modo Escuro</button>
+                <button id="contrast-mode-toggle" class="btn-accessibility" aria-pressed="false" aria-label="Ativar alto contraste">Alto Contraste</button>
+            </div>
+    
             <!-- Hamburger / toggle -->
             <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-hidden="true">
             <label for="nav-toggle" class="hamburger" aria-hidden="false" aria-label="Abrir menu de navegação">☰</label>
@@ -56,7 +64,7 @@
     </header>
 
 
-    <main id="main-content">
+    <main id="main-content" tabindex="-1">
         <section aria-labelledby="sobre">
             <h2 id="sobre">Quem Somos</h2>
             <p>O Movimento Juntos pelo Bem é uma organização sem fins lucrativos dedicada a apoiar comunidades vulneráveis por meio
@@ -117,6 +125,7 @@
 </footer>
 
 
+    <div id="a11y-announcer" aria-live="polite" class="sr-only" aria-atomic="true"></div>
 </body>
 
 </html>

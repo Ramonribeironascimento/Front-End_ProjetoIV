@@ -452,6 +452,8 @@ console.log('App JS carregado');
             t.innerHTML = `<div class="toast-msg">${htmlEscape(msg)}</div><button class="toast-close" aria-label="Fechar">&times;</button>`;
             a.appendChild(t);
             t.querySelector('.toast-close').addEventListener('click', () => t.remove());
+            // announce for screen readers
+            try { const ann = document.getElementById('a11y-announcer'); if (ann) ann.textContent = msg; } catch(e){}
             setTimeout(() => t.remove(), timeout);
         }
         return {
@@ -526,6 +528,46 @@ console.log('App JS carregado');
                 console.error(err);
             });
         });
+
+
+        // Accessibility: theme toggles (dark / high contrast)
+        try {
+            const darkBtn = document.getElementById('dark-mode-toggle');
+            const contrastBtn = document.getElementById('contrast-mode-toggle');
+            const announcer = document.getElementById('a11y-announcer');
+
+            function setTheme(theme) {
+                document.body.classList.remove('dark-mode', 'high-contrast');
+                if (theme === 'dark-mode') document.body.classList.add('dark-mode');
+                if (theme === 'high-contrast') document.body.classList.add('high-contrast');
+                // update aria-pressed
+                if (darkBtn) darkBtn.setAttribute('aria-pressed', String(document.body.classList.contains('dark-mode')));
+                if (contrastBtn) contrastBtn.setAttribute('aria-pressed', String(document.body.classList.contains('high-contrast')));
+                localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark-mode' : (document.body.classList.contains('high-contrast') ? 'high-contrast' : ''));
+            }
+
+            if (darkBtn) {
+                darkBtn.addEventListener('click', () => {
+                    const turningOn = !document.body.classList.contains('dark-mode');
+                    setTheme(turningOn ? 'dark-mode' : '');
+                    if (announcer) announcer.textContent = turningOn ? 'Modo escuro ativado' : 'Modo escuro desativado';
+                });
+            }
+            if (contrastBtn) {
+                contrastBtn.addEventListener('click', () => {
+                    const turningOn = !document.body.classList.contains('high-contrast');
+                    setTheme(turningOn ? 'high-contrast' : '');
+                    if (announcer) announcer.textContent = turningOn ? 'Alto contraste ativado' : 'Alto contraste desativado';
+                });
+            }
+
+            // restore preference
+            const pref = localStorage.getItem('theme');
+            if (pref) setTheme(pref);
+        } catch (err) {
+            console.warn('A11Y theme init error', err);
+        }
+
 
         SPA.init();
     }

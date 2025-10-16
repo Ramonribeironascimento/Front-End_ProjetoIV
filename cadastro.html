@@ -10,6 +10,8 @@
 </head>
 
 <body>
+    <a class="skip-link" href="#main-content">Pular para o conteúdo</a>
+
 
     <!-- header.html (fragmento) -->
     <header class="site-header" role="banner">
@@ -20,6 +22,12 @@
                     <div class="title">Movimento Juntos pelo Bem</div>
                     <div class="sr-only">Organização sem fins lucrativos</div>
                 </div>
+            </div>
+    
+            
+            <div class="accessibility-controls" aria-hidden="false">
+                <button id="dark-mode-toggle" class="btn-accessibility" aria-pressed="false" aria-label="Ativar modo escuro">Modo Escuro</button>
+                <button id="contrast-mode-toggle" class="btn-accessibility" aria-pressed="false" aria-label="Ativar alto contraste">Alto Contraste</button>
             </div>
     
             <!-- Hamburger / toggle -->
@@ -55,7 +63,7 @@
     </header>
 
  
-    <main class="container" id="main-content" role="main" >
+    <main class="container" id="main-content" role="main"  tabindex="-1">
         <section class="hero">
             <div class="inner">
                 <div>
@@ -202,6 +210,7 @@
         </div>
     </footer>
 
+    <div id="a11y-announcer" aria-live="polite" class="sr-only" aria-atomic="true"></div>
 </body>
 
 </html>
