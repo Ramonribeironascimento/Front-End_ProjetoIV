@@ -569,6 +569,86 @@ console.log('App JS carregado');
         }
 
 
+        
+
+        // initAccessibleMenu: supports hover + keyboard and auto-close on focus out
+        (function initAccessibleMenu(){
+            const btn = document.getElementById('btn-projetos');
+            const menu = document.getElementById('menu-projetos');
+            if (!btn || !menu) return;
+
+            function openMenu(fromMouse){
+                btn.setAttribute('aria-expanded', 'true');
+                menu.setAttribute('aria-hidden', 'false');
+                menu.querySelectorAll('[role="menuitem"]').forEach((it) => { it.tabIndex = 0; });
+                if (!fromMouse) {
+                    const first = menu.querySelector('[role="menuitem"]');
+                    if (first) first.focus();
+                }
+            }
+            function closeMenu(){
+                btn.setAttribute('aria-expanded', 'false');
+                menu.setAttribute('aria-hidden', 'true');
+                menu.querySelectorAll('[role="menuitem"]').forEach(it => it.tabIndex = -1);
+            }
+
+            // mouse interactions (hover)
+            btn.addEventListener('mouseenter', () => openMenu(true));
+            btn.addEventListener('mouseleave', (e) => {
+                const to = e.relatedTarget;
+                if (menu.contains(to)) return;
+                closeMenu();
+            });
+            menu.addEventListener('mouseenter', () => openMenu(true));
+            menu.addEventListener('mouseleave', (e) => {
+                const to = e.relatedTarget;
+                if (btn.contains(to)) return;
+                closeMenu();
+            });
+
+            // click / keyboard on button
+            btn.addEventListener('click', (e) => {
+                const expanded = btn.getAttribute('aria-expanded') === 'true';
+                if (expanded) closeMenu(); else openMenu(false);
+            });
+            btn.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    openMenu(false);
+                }
+            });
+
+            // keyboard navigation inside menu
+            menu.addEventListener('keydown', (e) => {
+                const items = Array.from(menu.querySelectorAll('[role="menuitem"]'));
+                const idx = items.indexOf(document.activeElement);
+                if (e.key === 'ArrowDown') { e.preventDefault(); items[(idx+1)%items.length].focus(); }
+                if (e.key === 'ArrowUp')   { e.preventDefault(); items[(idx-1+items.length)%items.length].focus(); }
+                if (e.key === 'Escape')    { e.preventDefault(); closeMenu(); btn.focus(); }
+                if (e.key === 'Home')      { e.preventDefault(); items[0].focus(); }
+                if (e.key === 'End')       { e.preventDefault(); items[items.length-1].focus(); }
+            });
+
+            // close on focusout
+            document.addEventListener('focusin', (e) => {
+                const active = document.activeElement;
+                if (!btn.contains(active) && !menu.contains(active)) {
+                    closeMenu();
+                }
+            });
+
+            // close when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!btn.contains(e.target) && !menu.contains(e.target)) closeMenu();
+            });
+
+            // init state
+            btn.setAttribute('aria-expanded','false');
+            menu.setAttribute('aria-hidden','true');
+            menu.querySelectorAll('[role="menuitem"]').forEach(it => it.tabIndex = -1);
+        })();
+
+
         SPA.init();
     }
 
