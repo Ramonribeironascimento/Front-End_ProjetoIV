@@ -452,6 +452,8 @@ console.log('App JS carregado');
             t.innerHTML = `<div class="toast-msg">${htmlEscape(msg)}</div><button class="toast-close" aria-label="Fechar">&times;</button>`;
             a.appendChild(t);
             t.querySelector('.toast-close').addEventListener('click', () => t.remove());
+            // announce for screen readers
+            try { const ann = document.getElementById('a11y-announcer'); if (ann) ann.textContent = msg; } catch(e){}
             setTimeout(() => t.remove(), timeout);
         }
         return {
@@ -526,6 +528,126 @@ console.log('App JS carregado');
                 console.error(err);
             });
         });
+
+
+        // Accessibility: theme toggles (dark / high contrast)
+        try {
+            const darkBtn = document.getElementById('dark-mode-toggle');
+            const contrastBtn = document.getElementById('contrast-mode-toggle');
+            const announcer = document.getElementById('a11y-announcer');
+
+            function setTheme(theme) {
+                document.body.classList.remove('dark-mode', 'high-contrast');
+                if (theme === 'dark-mode') document.body.classList.add('dark-mode');
+                if (theme === 'high-contrast') document.body.classList.add('high-contrast');
+                // update aria-pressed
+                if (darkBtn) darkBtn.setAttribute('aria-pressed', String(document.body.classList.contains('dark-mode')));
+                if (contrastBtn) contrastBtn.setAttribute('aria-pressed', String(document.body.classList.contains('high-contrast')));
+                localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark-mode' : (document.body.classList.contains('high-contrast') ? 'high-contrast' : ''));
+            }
+
+            if (darkBtn) {
+                darkBtn.addEventListener('click', () => {
+                    const turningOn = !document.body.classList.contains('dark-mode');
+                    setTheme(turningOn ? 'dark-mode' : '');
+                    if (announcer) announcer.textContent = turningOn ? 'Modo escuro ativado' : 'Modo escuro desativado';
+                });
+            }
+            if (contrastBtn) {
+                contrastBtn.addEventListener('click', () => {
+                    const turningOn = !document.body.classList.contains('high-contrast');
+                    setTheme(turningOn ? 'high-contrast' : '');
+                    if (announcer) announcer.textContent = turningOn ? 'Alto contraste ativado' : 'Alto contraste desativado';
+                });
+            }
+
+            // restore preference
+            const pref = localStorage.getItem('theme');
+            if (pref) setTheme(pref);
+        } catch (err) {
+            console.warn('A11Y theme init error', err);
+        }
+
+
+        
+
+        // initAccessibleMenu: supports hover + keyboard and auto-close on focus out
+        (function initAccessibleMenu(){
+            const btn = document.getElementById('btn-projetos');
+            const menu = document.getElementById('menu-projetos');
+            if (!btn || !menu) return;
+
+            function openMenu(fromMouse){
+                btn.setAttribute('aria-expanded', 'true');
+                menu.setAttribute('aria-hidden', 'false');
+                menu.querySelectorAll('[role="menuitem"]').forEach((it) => { it.tabIndex = 0; });
+                if (!fromMouse) {
+                    const first = menu.querySelector('[role="menuitem"]');
+                    if (first) first.focus();
+                }
+            }
+            function closeMenu(){
+                btn.setAttribute('aria-expanded', 'false');
+                menu.setAttribute('aria-hidden', 'true');
+                menu.querySelectorAll('[role="menuitem"]').forEach(it => it.tabIndex = -1);
+            }
+
+            // mouse interactions (hover)
+            btn.addEventListener('mouseenter', () => openMenu(true));
+            btn.addEventListener('mouseleave', (e) => {
+                const to = e.relatedTarget;
+                if (menu.contains(to)) return;
+                closeMenu();
+            });
+            menu.addEventListener('mouseenter', () => openMenu(true));
+            menu.addEventListener('mouseleave', (e) => {
+                const to = e.relatedTarget;
+                if (btn.contains(to)) return;
+                closeMenu();
+            });
+
+            // click / keyboard on button
+            btn.addEventListener('click', (e) => {
+                const expanded = btn.getAttribute('aria-expanded') === 'true';
+                if (expanded) closeMenu(); else openMenu(false);
+            });
+            btn.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    openMenu(false);
+                }
+            });
+
+            // keyboard navigation inside menu
+            menu.addEventListener('keydown', (e) => {
+                const items = Array.from(menu.querySelectorAll('[role="menuitem"]'));
+                const idx = items.indexOf(document.activeElement);
+                if (e.key === 'ArrowDown') { e.preventDefault(); items[(idx+1)%items.length].focus(); }
+                if (e.key === 'ArrowUp')   { e.preventDefault(); items[(idx-1+items.length)%items.length].focus(); }
+                if (e.key === 'Escape')    { e.preventDefault(); closeMenu(); btn.focus(); }
+                if (e.key === 'Home')      { e.preventDefault(); items[0].focus(); }
+                if (e.key === 'End')       { e.preventDefault(); items[items.length-1].focus(); }
+            });
+
+            // close on focusout
+            document.addEventListener('focusin', (e) => {
+                const active = document.activeElement;
+                if (!btn.contains(active) && !menu.contains(active)) {
+                    closeMenu();
+                }
+            });
+
+            // close when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!btn.contains(e.target) && !menu.contains(e.target)) closeMenu();
+            });
+
+            // init state
+            btn.setAttribute('aria-expanded','false');
+            menu.setAttribute('aria-hidden','true');
+            menu.querySelectorAll('[role="menuitem"]').forEach(it => it.tabIndex = -1);
+        })();
+
 
         SPA.init();
     }

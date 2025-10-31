@@ -10,6 +10,8 @@
 </head>
 
 <body>
+    <a class="skip-link" href="#main-content">Pular para o conteúdo</a>
+
 
     <!-- header.html (fragmento) -->
     <header class="site-header" role="banner">
@@ -19,7 +21,14 @@
                 <div>
                     <div class="title">Movimento Juntos pelo Bem</div>
                     <div class="sr-only">Organização sem fins lucrativos</div>
+                    <h1 class="sr-only">Movimento Juntos pelo Bem</h1>
                 </div>
+            </div>
+    
+            
+            <div class="accessibility-controls" aria-hidden="false">
+                <button id="dark-mode-toggle" class="btn-accessibility" aria-pressed="false" aria-label="Ativar modo escuro">Modo Escuro</button>
+                <button id="contrast-mode-toggle" class="btn-accessibility" aria-pressed="false" aria-label="Ativar alto contraste">Alto Contraste</button>
             </div>
     
             <!-- Hamburger / toggle -->
@@ -27,21 +36,23 @@
             <label for="nav-toggle" class="hamburger" aria-hidden="false" aria-label="Abrir menu de navegação">☰</label>
     
             <!-- Desktop nav -->
+            
             <nav class="main-nav" role="navigation" aria-label="Navegação principal">
                 <ul>
                     <li><a href="index.html">Início</a></li>
-    
-                    <li class="nav-item">
-                        <a href="projetos.html" aria-haspopup="true">Projetos</a>
-                        <div class="submenu" role="menu" aria-label="Submenu Projetos">
-                            <a role="menuitem" href="projetos.html#educacao">Educação</a>
-                            <a role="menuitem" href="projetos.html#alimentacao">Distribuição de Cestas</a>
-                            <a role="menuitem" href="projetos.html#capacitacao">Capacitação</a>
+
+                    <li class="nav-item" aria-haspopup="true">
+                        <button id="btn-projetos" class="menu-button" aria-expanded="false" aria-controls="menu-projetos">Projetos</button>
+                        <div id="menu-projetos" class="submenu" role="menu" aria-label="Submenu Projetos" aria-hidden="true">
+                            <a role="menuitem" href="projetos.html#educacao" tabindex="-1">Educação</a>
+                            <a role="menuitem" href="projetos.html#alimentacao" tabindex="-1">Distribuição de Cestas</a>
+                            <a role="menuitem" href="projetos.html#capacitacao" tabindex="-1">Capacitação</a>
                         </div>
                     </li>
                     <li><a href="cadastro.html">Doação</a></li>
                 </ul>
             </nav>
+
     
             <!-- Mobile menu (aparecerá quando #nav-toggle checked) -->
             <div class="mobile-menu" role="menu" aria-label="Menu móvel">
@@ -55,7 +66,7 @@
     </header>
 
  
-    <main class="container" id="main-content" role="main" >
+    <main class="container" id="main-content" role="main"  tabindex="-1">
         <section class="hero">
             <div class="inner">
                 <div>
@@ -202,6 +213,7 @@
         </div>
     </footer>
 
+    <div id="a11y-announcer" aria-live="polite" class="sr-only" aria-atomic="true"></div>
 </body>
 
 </html>
